@@ -1,17 +1,64 @@
 {
+  "project": {
+    "name": "AgenticREVIT",
+    "type": "revit-plugin",
+    "framework": ".NET Framework 4.8",
+    "targetPlatform": "x64",
+    "revitVersion": "2025"
+  },
+  "versionConstraints": {
+    "revit": "2025",
+    "dotnet": "4.8",
+    "neo4j": "5.x",
+    "locked": true
+  },
+  "agents": [
+    "revit-graph-agent",
+    "change-tracker-agent",
+    "bim-workflow-agent",
+    "llm-integration-agent",
+    "phase-tracker",
+    "progress-tracker",
+    "code-reviewer"
+  ],
+  "conventions": {
+    "namespace": "AgenticRevit",
+    "codeStyle": "C# conventions",
+    "language": "ko-KR (comments), en-US (code)"
+  },
+  "deployment": {
+    "target": "%APPDATA%\\Autodesk\\Revit\\Addins\\2025\\AgenticRevit\\",
+    "postBuildEvent": true,
+    "requiresAdmin": false
+  },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{"type": "command", "command": ".claude/hooks/pre-tool-use-safety.sh Bash"}]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Bash",
-        "hooks": [{"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Bash"}]
+        "hooks": [
+          {"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Bash"},
+          {"type": "command", "command": ".claude/hooks/phase-progress.sh Bash"}
+        ]
       },
       {
         "matcher": "Write",
-        "hooks": [{"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Write"}]
+        "hooks": [
+          {"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Write"},
+          {"type": "command", "command": ".claude/hooks/phase-progress.sh Write"}
+        ]
       },
       {
         "matcher": "Edit",
-        "hooks": [{"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Edit"}]
+        "hooks": [
+          {"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Edit"},
+          {"type": "command", "command": ".claude/hooks/phase-progress.sh Edit"}
+        ]
       }
     ]
   },
@@ -19,6 +66,37 @@
     "auto_changelog": true,
     "auto_readme_sync": true,
     "sprint_tracking": true,
-    "velocity_tracking": true
+    "velocity_tracking": true,
+    "sync_on_commit": true
+  },
+  "phase": {
+    "enabled": true,
+    "auto_progress_update": true,
+    "auto_check_completion": true,
+    "document_structure": {
+      "spec": "SPEC.md",
+      "tasks": "TASKS.md",
+      "checklist": "CHECKLIST.md"
+    }
+  },
+  "sprint": {
+    "enabled": true,
+    "default_duration": "2w",
+    "point_scale": [1, 2, 3, 5, 8, 13],
+    "auto_velocity_track": true,
+    "phase_integration": {
+      "enabled": true,
+      "link_to_phase": true
+    }
+  },
+  "quality-gate": {
+    "pre-commit": {
+      "enabled": true,
+      "checks": ["build", "warnings"]
+    },
+    "pre-release": {
+      "enabled": true,
+      "require_changelog": true
+    }
   }
 }

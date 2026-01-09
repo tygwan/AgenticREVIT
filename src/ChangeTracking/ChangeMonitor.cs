@@ -132,7 +132,7 @@ namespace AgenticRevit.ChangeTracking
             {
                 var record = new ChangeRecord
                 {
-                    ElementId = id.IntegerValue.ToString(),
+                    ElementId = id.Value.ToString(),
                     ChangeType = ModelChangeType.Deleted,
                     Timestamp = timestamp,
                     DocumentId = docKey
@@ -207,7 +207,7 @@ namespace AgenticRevit.ChangeTracking
         {
             var record = new ChangeRecord
             {
-                ElementId = element.Id.IntegerValue.ToString(),
+                ElementId = element.Id.Value.ToString(),
                 UniqueId = element.UniqueId,
                 ChangeType = changeType,
                 Timestamp = timestamp,
@@ -284,7 +284,7 @@ namespace AgenticRevit.ChangeTracking
                 case StorageType.Double:
                     return param.AsDouble();
                 case StorageType.ElementId:
-                    return param.AsElementId()?.IntegerValue;
+                    return param.AsElementId()?.Value;
                 default:
                     return null;
             }

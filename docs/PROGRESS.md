@@ -1,7 +1,7 @@
 # AgenticREVIT Development Progress
 
 **Last Updated**: 2025-01-09
-**Current Phase**: Phase 1 - Foundation
+**Current Phase**: Phase 2 - GraphDB Integration
 **Overall Progress**: 25%
 
 ---
@@ -20,15 +20,29 @@ Phase 5: Dashboard UI      ░░░░░░░░░░░░░░░░░�
 
 ---
 
+## Phase Documents
+
+각 Phase의 상세 문서는 `phases/` 폴더에서 관리됩니다:
+
+| Phase | SPEC | TASKS | CHECKLIST |
+|-------|------|-------|-----------|
+| 1 | [SPEC](phases/phase-1/SPEC.md) | [TASKS](phases/phase-1/TASKS.md) | [CHECKLIST](phases/phase-1/CHECKLIST.md) |
+| 2 | [SPEC](phases/phase-2/SPEC.md) | [TASKS](phases/phase-2/TASKS.md) | [CHECKLIST](phases/phase-2/CHECKLIST.md) |
+| 3 | [SPEC](phases/phase-3/SPEC.md) | [TASKS](phases/phase-3/TASKS.md) | [CHECKLIST](phases/phase-3/CHECKLIST.md) |
+| 4 | [SPEC](phases/phase-4/SPEC.md) | [TASKS](phases/phase-4/TASKS.md) | [CHECKLIST](phases/phase-4/CHECKLIST.md) |
+| 5 | [SPEC](phases/phase-5/SPEC.md) | [TASKS](phases/phase-5/TASKS.md) | [CHECKLIST](phases/phase-5/CHECKLIST.md) |
+
+---
+
 ## Milestones
 
-| Phase | Description | Status | Target |
-|-------|-------------|--------|--------|
-| 1 | Foundation (Plugin, Change Tracking, Backup) | ✅ Complete | - |
-| 2 | GraphDB Integration | 🔄 In Progress | - |
-| 3 | BIM Workflow (CBS/WBS/BOQ) | ⏳ Planned | - |
-| 4 | LLM Integration | ⏳ Planned | - |
-| 5 | Dashboard UI | ⏳ Planned | - |
+| Phase | Description | Status | Details |
+|-------|-------------|--------|---------|
+| 1 | Foundation (Plugin, Change Tracking, Backup) | ✅ Complete | [→ Phase 1](phases/phase-1/) |
+| 2 | GraphDB Integration | 🔄 In Progress | [→ Phase 2](phases/phase-2/) |
+| 3 | BIM Workflow (CBS/WBS/BOQ) | ⏳ Planned | [→ Phase 3](phases/phase-3/) |
+| 4 | LLM Integration | ⏳ Planned | [→ Phase 4](phases/phase-4/) |
+| 5 | Dashboard UI | ⏳ Planned | [→ Phase 5](phases/phase-5/) |
 
 ---
 
@@ -115,33 +129,51 @@ Phase 5: Dashboard UI      ░░░░░░░░░░░░░░░░░�
 
 ---
 
-## Current Sprint
+## Current Sprint: Sprint 1 - API Compatibility ✅
 
-### Active Work
-- [ ] Neo4j connection implementation
-- [ ] Basic Cypher queries
-- [ ] Graph sync testing
+**Duration**: 2026-01-09 ~ 2026-01-15
+**Status**: ✅ Completed
+**Sprint Doc**: [SPRINT-1.md](sprints/sprint-1/SPRINT-1.md)
 
-### Blockers
-- None currently
+### P0 - Critical (Build Quality) ✅
+- [x] `ElementId.IntegerValue` → `Value` 수정 (10 locations)
+- [x] `ElementId(int)` → `ElementId(long)` - 이미 올바름
+- [x] `IDriver.CloseAsync` → `DisposeAsync` 수정
+
+### P1 - High (Warnings) ✅
+- [x] 미사용 `_isInitialized` 필드 정리
+
+### Build Result
+- **Before**: 37 warnings
+- **After**: 19 warnings (MSB3277 SDK 버전 충돌만 남음)
+- **Status**: 모든 deprecated API 경고 해결
 
 ### Notes
-- Focus on completing Phase 2 before moving to BIM workflows
-- Consider unit testing setup
+- 남은 19개 경고는 Revit 2025 SDK와 .NET Framework 4.8 간 버전 충돌
+- 런타임 영향 없음, 빌드 성공
 
 ---
 
 ## Technical Debt
 
-| Item | Priority | Description |
-|------|----------|-------------|
-| Deprecated API warnings | Low | 37 warnings from Revit 2025 API changes |
-| Unit tests | Medium | No test coverage currently |
-| Error handling | Low | Some edge cases need better handling |
+| Item | Priority | Description | Status |
+|------|----------|-------------|--------|
+| ~~Deprecated API warnings~~ | ~~Low~~ | ~~37 warnings from Revit 2025 API changes~~ | ✅ Fixed |
+| SDK version conflicts | Info | 19 MSB3277 warnings from Revit SDK | N/A (SDK issue) |
+| Unit tests | Medium | No test coverage currently | 📋 Planned |
+| Error handling | Low | Some edge cases need better handling | 📋 Planned |
 
 ---
 
 ## Change Log
+
+### 2026-01-09
+- Sprint 1 완료: Deprecated API 수정
+  - ElementId.IntegerValue → Value (10개)
+  - IDriver.CloseAsync → DisposeAsync (1개)
+  - 미사용 _isInitialized 필드 제거
+- 빌드 warning 개선: 37 → 19
+- Agile 개발 환경 설정 완료
 
 ### 2025-01-09
 - Initial project creation

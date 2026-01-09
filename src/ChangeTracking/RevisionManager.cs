@@ -402,7 +402,7 @@ namespace AgenticRevit.ChangeTracking
 
             var backup = new ElementBackup
             {
-                ElementId = element.Id.IntegerValue.ToString(),
+                ElementId = element.Id.Value.ToString(),
                 UniqueId = element.UniqueId,
                 Category = element.Category?.Name ?? "Unknown",
                 FamilyName = GetFamilyName(element),
@@ -449,7 +449,7 @@ namespace AgenticRevit.ChangeTracking
                 case StorageType.Double:
                     return param.AsDouble();
                 case StorageType.ElementId:
-                    return param.AsElementId()?.IntegerValue;
+                    return param.AsElementId()?.Value;
                 default:
                     return null;
             }

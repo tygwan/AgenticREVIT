@@ -71,38 +71,113 @@
   <!-- Post-Build Event: Deploy to Revit Addins folder -->
   <PropertyGroup>
     <RevitAddinsPath>$(APPDATA)\Autodesk\Revit\Addins\2025</RevitAddinsPath>
+    <DeploymentLogPath>$(ProjectDir)..\logs</DeploymentLogPath>
   </PropertyGroup>
 
+  <!-- Check if Revit is running before deployment -->
+  <Target Name="CheckRevitProcess" BeforeTargets="DeployToRevit">
+    <Exec Command="tasklist /FI &quot;IMAGENAME eq Revit.exe&quot; 2>NUL | find /I /N &quot;Revit.exe&quot; >NUL"
+          IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="RevitRunning"/>
+    </Exec>
+    <Warning Text="⚠️ WARNING: Revit is currently running. File locks may prevent deployment. Consider closing Revit."
+             Condition="'$(RevitRunning)'=='0'" />
+  </Target>
+
+  <!-- Main deployment target -->
   <Target Name="DeployToRevit" AfterTargets="Build">
-    <Message Text="Deploying AgenticRevit to Revit 2025 Addins folder..." Importance="high" />
+    <Message Text="═══════════════════════════════════════════════════════════════" Importance="high" />
+    <Message Text="  AgenticREVIT Deployment - $(Configuration) Build" Importance="high" />
+    <Message Text="═══════════════════════════════════════════════════════════════" Importance="high" />
 
-    <!-- Create Addins directory if not exists -->
+    <!-- Create directories -->
     <MakeDir Directories="$(RevitAddinsPath)" Condition="!Exists('$(RevitAddinsPath)')" />
+    <MakeDir Directories="$(DeploymentLogPath)" Condition="!Exists('$(DeploymentLogPath)')" />
 
-    <!-- Copy DLL and PDB files -->
-    <Copy SourceFiles="$(OutputPath)AgenticRevit.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(OutputPath)AgenticRevit.pdb" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)AgenticRevit.pdb')" />
+    <!-- Clean old deployment for Release builds -->
+    <ItemGroup Condition="'$(Configuration)'=='Release'">
+      <OldDeployedFiles Include="$(RevitAddinsPath)\AgenticRevit.*" />
+      <OldDeployedFiles Include="$(RevitAddinsPath)\Neo4j.Driver*.dll" />
+      <OldDeployedFiles Include="$(RevitAddinsPath)\Serilog*.dll" />
+    </ItemGroup>
+    <Delete Files="@(OldDeployedFiles)" Condition="'$(Configuration)'=='Release'" ContinueOnError="true" />
+    <Message Text="✓ Cleaned old deployment files (Release mode)" Importance="high" Condition="'$(Configuration)'=='Release'" />
 
-    <!-- Copy dependency DLLs -->
-    <Copy SourceFiles="$(OutputPath)Neo4j.Driver.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(OutputPath)Newtonsoft.Json.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(OutputPath)Serilog.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(OutputPath)Serilog.Sinks.File.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+    <!-- Copy main assembly -->
+    <Message Text="► Deploying AgenticRevit.dll..." Importance="high" />
+    <Copy SourceFiles="$(OutputPath)AgenticRevit.dll"
+          DestinationFolder="$(RevitAddinsPath)"
+          SkipUnchangedFiles="true"
+          Retries="3"
+          RetryDelayMilliseconds="1000" />
 
-    <!-- Copy System dependencies -->
-    <Copy SourceFiles="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll')" />
-    <Copy SourceFiles="$(OutputPath)System.Buffers.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Buffers.dll')" />
-    <Copy SourceFiles="$(OutputPath)System.Memory.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Memory.dll')" />
-    <Copy SourceFiles="$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll')" />
-    <Copy SourceFiles="$(OutputPath)System.Threading.Tasks.Extensions.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Threading.Tasks.Extensions.dll')" />
-    <Copy SourceFiles="$(OutputPath)System.ValueTuple.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.ValueTuple.dll')" />
-    <Copy SourceFiles="$(OutputPath)System.Numerics.Vectors.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Numerics.Vectors.dll')" />
-    <Copy SourceFiles="$(OutputPath)System.Diagnostics.DiagnosticSource.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Diagnostics.DiagnosticSource.dll')" />
+    <!-- Copy PDB for Debug builds -->
+    <Copy SourceFiles="$(OutputPath)AgenticRevit.pdb"
+          DestinationFolder="$(RevitAddinsPath)"
+          SkipUnchangedFiles="true"
+          Condition="'$(Configuration)'=='Debug' AND Exists('$(OutputPath)AgenticRevit.pdb')" />
+
+    <!-- Copy all NuGet dependency DLLs using wildcard pattern -->
+    <Message Text="► Deploying NuGet dependencies..." Importance="high" />
+    <ItemGroup>
+      <NuGetDependencies Include="$(OutputPath)Neo4j.Driver*.dll" />
+      <NuGetDependencies Include="$(OutputPath)Newtonsoft.Json.dll" />
+      <NuGetDependencies Include="$(OutputPath)Serilog*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NuGetDependencies)"
+          DestinationFolder="$(RevitAddinsPath)"
+          SkipUnchangedFiles="true"
+          Retries="3"
+          RetryDelayMilliseconds="1000" />
+
+    <!-- Copy System dependencies with existence check -->
+    <Message Text="► Deploying System dependencies..." Importance="high" />
+    <ItemGroup>
+      <SystemDependencies Include="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" Condition="Exists('$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Buffers.dll" Condition="Exists('$(OutputPath)System.Buffers.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Memory.dll" Condition="Exists('$(OutputPath)System.Memory.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" Condition="Exists('$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Threading.Tasks.Extensions.dll" Condition="Exists('$(OutputPath)System.Threading.Tasks.Extensions.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.ValueTuple.dll" Condition="Exists('$(OutputPath)System.ValueTuple.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Numerics.Vectors.dll" Condition="Exists('$(OutputPath)System.Numerics.Vectors.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Diagnostics.DiagnosticSource.dll" Condition="Exists('$(OutputPath)System.Diagnostics.DiagnosticSource.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Text.Encodings.Web.dll" Condition="Exists('$(OutputPath)System.Text.Encodings.Web.dll')" />
+      <SystemDependencies Include="$(OutputPath)System.Text.Json.dll" Condition="Exists('$(OutputPath)System.Text.Json.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SystemDependencies)"
+          DestinationFolder="$(RevitAddinsPath)"
+          SkipUnchangedFiles="true"
+          ContinueOnError="true" />
 
     <!-- Copy .addin manifest file -->
-    <Copy SourceFiles="$(ProjectDir)..\AgenticRevit.addin" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+    <Message Text="► Deploying AgenticRevit.addin manifest..." Importance="high" />
+    <Copy SourceFiles="$(ProjectDir)..\AgenticRevit.addin"
+          DestinationFolder="$(RevitAddinsPath)"
+          SkipUnchangedFiles="true" />
 
-    <Message Text="Deployment complete: $(RevitAddinsPath)" Importance="high" />
+    <!-- Write deployment log -->
+    <PropertyGroup>
+      <DeploymentTimestamp>$([System.DateTime]::Now.ToString("yyyy-MM-dd HH:mm:ss"))</DeploymentTimestamp>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(DeploymentLogPath)\deployment.log"
+                      Lines="[$(DeploymentTimestamp)] $(Configuration) build deployed to $(RevitAddinsPath)"
+                      Overwrite="false" />
+
+    <!-- Summary -->
+    <Message Text="═══════════════════════════════════════════════════════════════" Importance="high" />
+    <Message Text="  ✅ DEPLOYMENT COMPLETE" Importance="high" />
+    <Message Text="  📁 Location: $(RevitAddinsPath)" Importance="high" />
+    <Message Text="  📋 Log: $(DeploymentLogPath)\deployment.log" Importance="high" />
+    <Message Text="═══════════════════════════════════════════════════════════════" Importance="high" />
+  </Target>
+
+  <!-- Verify deployment after copy -->
+  <Target Name="VerifyDeployment" AfterTargets="DeployToRevit">
+    <Error Text="❌ Deployment failed: AgenticRevit.dll not found in $(RevitAddinsPath)"
+           Condition="!Exists('$(RevitAddinsPath)\AgenticRevit.dll')" />
+    <Error Text="❌ Deployment failed: AgenticRevit.addin not found in $(RevitAddinsPath)"
+           Condition="!Exists('$(RevitAddinsPath)\AgenticRevit.addin')" />
+    <Message Text="  ✓ Deployment verification passed" Importance="high" />
   </Target>
 
 </Project>

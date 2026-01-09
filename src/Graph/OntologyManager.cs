@@ -124,7 +124,7 @@ namespace AgenticRevit.Graph
                 // Process deleted elements
                 foreach (var id in deletedIds)
                 {
-                    RemoveElementNode(id.IntegerValue.ToString());
+                    RemoveElementNode(id.Value.ToString());
                     nodesDeleted++;
                 }
 
@@ -238,7 +238,7 @@ namespace AgenticRevit.Graph
                 node.Properties["Elevation"] = level.Elevation;
 
                 _nodes[node.Id] = node;
-                _revitIdToNodeId[level.Id.IntegerValue.ToString()] = node.Id;
+                _revitIdToNodeId[level.Id.Value.ToString()] = node.Id;
             }
 
             // Build Room nodes
@@ -261,7 +261,7 @@ namespace AgenticRevit.Graph
                 node.Volume = GetParameterDoubleValue(room, BuiltInParameter.ROOM_VOLUME);
 
                 _nodes[node.Id] = node;
-                _revitIdToNodeId[room.Id.IntegerValue.ToString()] = node.Id;
+                _revitIdToNodeId[room.Id.Value.ToString()] = node.Id;
             }
         }
 
@@ -272,7 +272,7 @@ namespace AgenticRevit.Graph
             {
                 if (nodeKvp.Value is ModelElementNode elementNode)
                 {
-                    var element = document.GetElement(new ElementId(int.Parse(elementNode.RevitElementId)));
+                    var element = document.GetElement(new ElementId(long.Parse(elementNode.RevitElementId)));
                     if (element != null)
                     {
                         BuildElementRelationships(element, elementNode);
@@ -289,7 +289,7 @@ namespace AgenticRevit.Graph
                 var levelId = element.LevelId;
                 if (levelId != ElementId.InvalidElementId)
                 {
-                    var levelNodeId = GetNodeIdByRevitId(levelId.IntegerValue.ToString());
+                    var levelNodeId = GetNodeIdByRevitId(levelId.Value.ToString());
                     if (levelNodeId != null)
                     {
                         CreateRelationship(elementNode.Id, levelNodeId, RelationshipTypes.LocatedIn);
@@ -299,7 +299,7 @@ namespace AgenticRevit.Graph
                 // Host relationship (for hosted elements)
                 if (element is FamilyInstance fi && fi.Host != null)
                 {
-                    var hostNodeId = GetNodeIdByRevitId(fi.Host.Id.IntegerValue.ToString());
+                    var hostNodeId = GetNodeIdByRevitId(fi.Host.Id.Value.ToString());
                     if (hostNodeId != null)
                     {
                         CreateRelationship(elementNode.Id, hostNodeId, RelationshipTypes.HostedBy);
@@ -312,7 +312,7 @@ namespace AgenticRevit.Graph
                     var room = instance.Room;
                     if (room != null)
                     {
-                        var roomNodeId = GetNodeIdByRevitId(room.Id.IntegerValue.ToString());
+                        var roomNodeId = GetNodeIdByRevitId(room.Id.Value.ToString());
                         if (roomNodeId != null)
                         {
                             CreateRelationship(elementNode.Id, roomNodeId, RelationshipTypes.LocatedIn);
@@ -331,7 +331,7 @@ namespace AgenticRevit.Graph
             var node = new ModelElementNode
             {
                 Label = element.Name ?? "Unnamed",
-                RevitElementId = element.Id.IntegerValue.ToString(),
+                RevitElementId = element.Id.Value.ToString(),
                 UniqueId = element.UniqueId,
                 Category = element.Category?.Name ?? "Unknown",
                 Family = GetFamilyName(element),
@@ -352,7 +352,7 @@ namespace AgenticRevit.Graph
 
         private void UpdateElementNode(Element element)
         {
-            var revitId = element.Id.IntegerValue.ToString();
+            var revitId = element.Id.Value.ToString();
 
             if (_revitIdToNodeId.TryGetValue(revitId, out var nodeId))
             {
@@ -405,7 +405,7 @@ namespace AgenticRevit.Graph
                 var element = document.GetElement(id);
                 if (element != null)
                 {
-                    var nodeId = GetNodeIdByRevitId(id.IntegerValue.ToString());
+                    var nodeId = GetNodeIdByRevitId(id.Value.ToString());
                     if (nodeId != null && _nodes.TryGetValue(nodeId, out var node) && node is ModelElementNode elementNode)
                     {
                         BuildElementRelationships(element, elementNode);
@@ -435,7 +435,7 @@ namespace AgenticRevit.Graph
                 BuiltInCategory.OST_Cameras
             };
 
-            var categoryId = element.Category.Id.IntegerValue;
+            var categoryId = element.Category.Id.Value;
 
             foreach (var excluded in excludedCategories)
             {

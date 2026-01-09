@@ -75,7 +75,7 @@ namespace AgenticRevit.Graph
         {
             if (_driver != null)
             {
-                await _driver.CloseAsync();
+                await _driver.DisposeAsync();
                 _isConnected = false;
                 Log.Information("Disconnected from Neo4j");
             }

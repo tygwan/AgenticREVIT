@@ -43,7 +43,6 @@ namespace AgenticRevit.Core
         private ChangeMonitor? _changeMonitor;
         private RevisionManager? _revisionManager;
         private OntologyManager? _ontologyManager;
-        private bool _isInitialized;
 
         #endregion
 
@@ -72,7 +71,6 @@ namespace AgenticRevit.Core
                 // Create ribbon UI
                 CreateRibbonUI(application);
 
-                _isInitialized = true;
                 Log.Information("AgenticREVIT Plugin initialized successfully");
 
                 return Result.Succeeded;
