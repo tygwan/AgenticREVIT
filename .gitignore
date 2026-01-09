@@ -1,0 +1,68 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj.user
+
+# Rider
+.idea/
+*.sln.iml
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+
+# Build
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Oo]ut/
+
+# Backup files
+*.bak
+*.backup
+Backups/
+
+# Logs
+*.log
+
+# Test Results
+TestResults/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Secrets
+*.env
+*.local
+appsettings.*.json
+!appsettings.Development.json.example
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Neo4j data (local testing)
+neo4j-data/

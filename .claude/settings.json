@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Bash"}]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [{"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Write"}]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [{"type": "command", "command": ".claude/hooks/auto-doc-sync.sh Edit"}]
+      }
+    ]
+  },
+  "agile": {
+    "auto_changelog": true,
+    "auto_readme_sync": true,
+    "sprint_tracking": true,
+    "velocity_tracking": true
+  }
+}
