@@ -7,6 +7,7 @@ using Autodesk.Revit.DB;
 using Serilog;
 using AgenticRevit.Models;
 using AgenticRevit.Core.Events;
+using ModelElementNode = AgenticRevit.Models.ElementNode;
 
 namespace AgenticRevit.Graph
 {
@@ -193,7 +194,7 @@ namespace AgenticRevit.Graph
             {
                 TotalNodes = _nodes.Count,
                 TotalRelationships = _relationships.Count,
-                ElementNodes = _nodes.Values.Count(n => n is ElementNode),
+                ElementNodes = _nodes.Values.Count(n => n is ModelElementNode),
                 SpatialNodes = _nodes.Values.Count(n => n is SpatialNode),
                 TaskNodes = _nodes.Values.Count(n => n is TaskNode),
                 CostNodes = _nodes.Values.Count(n => n is CostNode),
@@ -269,7 +270,7 @@ namespace AgenticRevit.Graph
             // Build element-to-level relationships
             foreach (var nodeKvp in _nodes)
             {
-                if (nodeKvp.Value is ElementNode elementNode)
+                if (nodeKvp.Value is ModelElementNode elementNode)
                 {
                     var element = document.GetElement(new ElementId(int.Parse(elementNode.RevitElementId)));
                     if (element != null)
@@ -280,7 +281,7 @@ namespace AgenticRevit.Graph
             }
         }
 
-        private void BuildElementRelationships(Element element, ElementNode elementNode)
+        private void BuildElementRelationships(Element element, ModelElementNode elementNode)
         {
             try
             {
@@ -327,7 +328,7 @@ namespace AgenticRevit.Graph
 
         private void AddElementNode(Element element)
         {
-            var node = new ElementNode
+            var node = new ModelElementNode
             {
                 Label = element.Name ?? "Unnamed",
                 RevitElementId = element.Id.IntegerValue.ToString(),
@@ -355,7 +356,7 @@ namespace AgenticRevit.Graph
 
             if (_revitIdToNodeId.TryGetValue(revitId, out var nodeId))
             {
-                if (_nodes.TryGetValue(nodeId, out var existingNode) && existingNode is ElementNode elementNode)
+                if (_nodes.TryGetValue(nodeId, out var existingNode) && existingNode is ModelElementNode elementNode)
                 {
                     // Update properties
                     elementNode.Label = element.Name ?? "Unnamed";
@@ -405,7 +406,7 @@ namespace AgenticRevit.Graph
                 if (element != null)
                 {
                     var nodeId = GetNodeIdByRevitId(id.IntegerValue.ToString());
-                    if (nodeId != null && _nodes.TryGetValue(nodeId, out var node) && node is ElementNode elementNode)
+                    if (nodeId != null && _nodes.TryGetValue(nodeId, out var node) && node is ModelElementNode elementNode)
                     {
                         BuildElementRelationships(element, elementNode);
                         count++;

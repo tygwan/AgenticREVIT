@@ -6,6 +6,7 @@ using Autodesk.Revit.DB;
 using Serilog;
 using AgenticRevit.Models;
 using AgenticRevit.Core.Events;
+using ModelChangeType = AgenticRevit.Models.ChangeType;
 
 namespace AgenticRevit.ChangeTracking
 {
@@ -108,7 +109,7 @@ namespace AgenticRevit.ChangeTracking
                 var element = document.GetElement(id);
                 if (element != null)
                 {
-                    var record = CreateChangeRecord(element, ChangeType.Created, timestamp);
+                    var record = CreateChangeRecord(element, ModelChangeType.Created, timestamp);
                     _changeQueue.Enqueue(record);
                     tracker.AddChange(record);
                 }
@@ -120,7 +121,7 @@ namespace AgenticRevit.ChangeTracking
                 var element = document.GetElement(id);
                 if (element != null)
                 {
-                    var record = CreateChangeRecord(element, ChangeType.Modified, timestamp);
+                    var record = CreateChangeRecord(element, ModelChangeType.Modified, timestamp);
                     _changeQueue.Enqueue(record);
                     tracker.AddChange(record);
                 }
@@ -132,7 +133,7 @@ namespace AgenticRevit.ChangeTracking
                 var record = new ChangeRecord
                 {
                     ElementId = id.IntegerValue.ToString(),
-                    ChangeType = ChangeType.Deleted,
+                    ChangeType = ModelChangeType.Deleted,
                     Timestamp = timestamp,
                     DocumentId = docKey
                 };
@@ -202,7 +203,7 @@ namespace AgenticRevit.ChangeTracking
             return document.PathName ?? document.Title ?? Guid.NewGuid().ToString();
         }
 
-        private ChangeRecord CreateChangeRecord(Element element, ChangeType changeType, DateTime timestamp)
+        private ChangeRecord CreateChangeRecord(Element element, ModelChangeType changeType, DateTime timestamp)
         {
             var record = new ChangeRecord
             {
@@ -217,7 +218,7 @@ namespace AgenticRevit.ChangeTracking
             };
 
             // Capture current state for modified/created elements
-            if (changeType != ChangeType.Deleted)
+            if (changeType != ModelChangeType.Deleted)
             {
                 record.CurrentState = CaptureElementState(element);
             }

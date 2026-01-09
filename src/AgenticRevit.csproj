@@ -68,4 +68,41 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
 
+  <!-- Post-Build Event: Deploy to Revit Addins folder -->
+  <PropertyGroup>
+    <RevitAddinsPath>$(APPDATA)\Autodesk\Revit\Addins\2025</RevitAddinsPath>
+  </PropertyGroup>
+
+  <Target Name="DeployToRevit" AfterTargets="Build">
+    <Message Text="Deploying AgenticRevit to Revit 2025 Addins folder..." Importance="high" />
+
+    <!-- Create Addins directory if not exists -->
+    <MakeDir Directories="$(RevitAddinsPath)" Condition="!Exists('$(RevitAddinsPath)')" />
+
+    <!-- Copy DLL and PDB files -->
+    <Copy SourceFiles="$(OutputPath)AgenticRevit.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(OutputPath)AgenticRevit.pdb" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)AgenticRevit.pdb')" />
+
+    <!-- Copy dependency DLLs -->
+    <Copy SourceFiles="$(OutputPath)Neo4j.Driver.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(OutputPath)Newtonsoft.Json.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(OutputPath)Serilog.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(OutputPath)Serilog.Sinks.File.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+
+    <!-- Copy System dependencies -->
+    <Copy SourceFiles="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll')" />
+    <Copy SourceFiles="$(OutputPath)System.Buffers.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Buffers.dll')" />
+    <Copy SourceFiles="$(OutputPath)System.Memory.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Memory.dll')" />
+    <Copy SourceFiles="$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll')" />
+    <Copy SourceFiles="$(OutputPath)System.Threading.Tasks.Extensions.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Threading.Tasks.Extensions.dll')" />
+    <Copy SourceFiles="$(OutputPath)System.ValueTuple.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.ValueTuple.dll')" />
+    <Copy SourceFiles="$(OutputPath)System.Numerics.Vectors.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Numerics.Vectors.dll')" />
+    <Copy SourceFiles="$(OutputPath)System.Diagnostics.DiagnosticSource.dll" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)System.Diagnostics.DiagnosticSource.dll')" />
+
+    <!-- Copy .addin manifest file -->
+    <Copy SourceFiles="$(ProjectDir)..\AgenticRevit.addin" DestinationFolder="$(RevitAddinsPath)" SkipUnchangedFiles="true" />
+
+    <Message Text="Deployment complete: $(RevitAddinsPath)" Importance="high" />
+  </Target>
+
 </Project>
