@@ -5,7 +5,7 @@ description: Phase 기반 개발 워크플로우 스킬. 현재 Phase 문서 로
 
 # Phase-Based Development Skill
 
-AgenticREVIT 프로젝트의 Phase 기반 개발을 지원하는 스킬입니다.
+프로젝트의 Phase 기반 개발을 지원하는 스킬입니다.
 
 ## Activation
 
@@ -19,11 +19,11 @@ AgenticREVIT 프로젝트의 Phase 기반 개발을 지원하는 스킬입니다
 
 ```
 docs/phases/
-├── phase-1/     # Foundation (✅ Complete)
+├── phase-1/
 │   ├── SPEC.md
 │   ├── TASKS.md
 │   └── CHECKLIST.md
-├── phase-2/     # GraphDB (🔄 In Progress)
+├── phase-2/
 │   ├── SPEC.md
 │   ├── TASKS.md
 │   └── CHECKLIST.md
@@ -111,9 +111,9 @@ Exclude:
 
 ### Dependency Handling
 ```
-T2-03 depends on T2-02
-→ Complete T2-02 first
-→ Then start T2-03
+Task B depends on Task A
+→ Complete Task A first
+→ Then start Task B
 ```
 
 ## Phase Transition
@@ -145,6 +145,10 @@ T2-03 depends on T2-02
 ### With phase-progress hook
 - Auto-updates on task completion
 - Maintains document consistency
+
+### With doc-splitter agent
+- Creates phase folder structure
+- Maintains cross-references
 
 ## Best Practices
 

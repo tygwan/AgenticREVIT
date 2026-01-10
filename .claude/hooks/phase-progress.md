@@ -61,7 +61,7 @@ actions:
 
   - notify_if_complete:
       condition: "all_tasks_complete AND all_checks_done"
-      message: "Phase ${phase_number} complete! Ready for Phase ${next_phase}"
+      message: "Phase ${phase_number} complete! Ready for next phase"
 ```
 
 ## Integration Points
@@ -83,19 +83,19 @@ actions:
 ### Progress Update Log
 ```
 [Hook] Phase Progress Updated
-- Phase: 2
-- Completed: 4/8 tasks
-- Progress: 50%
+- Phase: N
+- Completed: X/Y tasks
+- Progress: Z%
 - Updated: docs/PROGRESS.md
 ```
 
 ### Completion Alert
 ```
 [Hook] Phase Completion Detected
-- Phase: 2 (GraphDB Integration)
+- Phase: N
 - All tasks: ✅
 - All checks: ✅
-- Action: Ready for Phase 3
+- Action: Ready for next phase
 ```
 
 ## Configuration

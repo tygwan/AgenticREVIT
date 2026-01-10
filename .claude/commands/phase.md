@@ -5,7 +5,7 @@ description: Phase 관리 명령어. Phase 상태 확인, 전환, 진행률 업�
 
 # Phase Management Command
 
-AgenticREVIT 프로젝트의 개발 Phase를 관리하는 명령어입니다.
+프로젝트의 개발 Phase를 관리하는 명령어입니다.
 
 ## 사용법
 
@@ -15,16 +15,16 @@ AgenticREVIT 프로젝트의 개발 Phase를 관리하는 명령어입니다.
 "/phase"
 
 # 특정 Phase 상세 보기
-"phase 2 상세"
-"phase-2 tasks"
+"phase N 상세"
+"phase-N tasks"
 
 # Task 상태 업데이트
-"phase update T2-01 complete"
-"T2-03 완료"
+"phase update T{N}-01 complete"
+"T{N}-03 완료"
 
 # Phase 전환
-"phase complete 2"
-"phase start 3"
+"phase complete N"
+"phase start N+1"
 
 # 전체 요약
 "phase summary"
@@ -34,11 +34,10 @@ AgenticREVIT 프로젝트의 개발 Phase를 관리하는 명령어입니다.
 
 ```
 docs/phases/
-├── phase-1/     # Foundation (✅ Complete)
-├── phase-2/     # GraphDB (🔄 In Progress)
-├── phase-3/     # BIM Workflow (⏳ Planned)
-├── phase-4/     # LLM Integration (⏳ Planned)
-└── phase-5/     # Dashboard UI (⏳ Planned)
+├── phase-1/     # [Phase 1 Name]
+├── phase-2/     # [Phase 2 Name]
+├── phase-3/     # [Phase 3 Name]
+└── ...
 ```
 
 ## 문서 구조
@@ -91,5 +90,8 @@ docs/phases/
 ### context-optimizer skill
 현재 Phase 문서만 로드하여 토큰을 최적화합니다.
 
-### progress-hook
+### phase-progress hook
 Task 상태 변경 시 자동으로 PROGRESS.md를 업데이트합니다.
+
+### doc-splitter agent
+Phase 분할 시 문서 구조를 자동으로 생성합니다.

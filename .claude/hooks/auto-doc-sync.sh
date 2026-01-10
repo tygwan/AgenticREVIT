@@ -47,11 +47,19 @@ update_changelog() {
     local commit_scope=""
     local commit_desc=""
 
-    # Parse conventional commit
-    if [[ "$commit_msg" =~ ^([a-z]+)(\(([^)]+)\))?:\ (.+)$ ]]; then
-        commit_type="${BASH_REMATCH[1]}"
-        commit_scope="${BASH_REMATCH[3]}"
-        commit_desc="${BASH_REMATCH[4]}"
+    # Parse conventional commit using simple string operations
+    # Pattern: type(scope): description or type: description
+    if [[ "$commit_msg" == *"("*"): "* ]]; then
+        # Has scope: feat(auth): description
+        commit_type="${commit_msg%%(*}"
+        local temp="${commit_msg#*(}"
+        commit_scope="${temp%%):*}"
+        commit_desc="${commit_msg#*): }"
+    elif [[ "$commit_msg" == *": "* ]]; then
+        # No scope: feat: description
+        commit_type="${commit_msg%%:*}"
+        commit_scope=""
+        commit_desc="${commit_msg#*: }"
     else
         commit_desc="$commit_msg"
         commit_type="chore"

@@ -73,17 +73,29 @@ commands_count=$(find .claude/commands -name "*.md" | wc -l)
 | Commands | $commands_count |
 ```
 
-### Step 4: Update Progress Tracking
+### Step 4: Update Progress Tracking (Phase-Integrated)
 ```bash
-# Read docs/progress/status.md or create if not exists
-# Calculate completion based on:
-# - Completed tasks (checked items)
-# - Total planned tasks
-# - Generate progress bar
+# Read from Phase system (standardized location)
+# Primary: docs/PROGRESS.md
+# Source: docs/phases/phase-*/TASKS.md
+
+# Scan all phase TASKS.md files
+for phase_dir in docs/phases/phase-*/; do
+    tasks_file="$phase_dir/TASKS.md"
+    if [[ -f "$tasks_file" ]]; then
+        total=$(grep -c "^- \[" "$tasks_file" 2>/dev/null || echo 0)
+        done=$(grep -c "^- \[x\]\|^- \[X\]\|✅" "$tasks_file" 2>/dev/null || echo 0)
+    fi
+done
+
+# Calculate overall progress
+# Update docs/PROGRESS.md with progress bar
 
 # Progress format:
-# [████████████░░░░░░░░] 60% (12/20 tasks)
+# [████████████░░░░░░░░] 60% (Phase 2 of 5)
 ```
+
+> **Note**: Uses Phase system. Legacy `docs/progress/status.md` is deprecated.
 
 ### Step 5: Validate Documentation
 ```bash

@@ -93,3 +93,111 @@ docs/
 - **tech-spec-writer**: 기술 설계서 작성 전문
 - **progress-tracker**: 진행상황 추적 및 업데이트
 - **doc-validator**: 문서 완성도 검증
+- **doc-splitter**: 대용량 문서 분할 및 Phase 관리
+- **dev-docs-writer**: 프로젝트 개시 시 개발 문서 자동 생성
+
+## 개발 Phase 분할 전략
+
+### doc-splitter 연동 규칙
+
+대규모 개발 프로젝트의 경우 상세 코드 작성 효율성을 위해 Phase 단위로 문서를 분할합니다.
+
+**분할 기준**:
+```yaml
+Phase 분할 조건:
+  - 기능 복잡도: HIGH (3개 이상 모듈 연동)
+  - 예상 코드량: >1,000 lines
+  - 개발 기간: >1 week
+  - 의존성 복잡도: 3개 이상 외부 의존성
+```
+
+**분할 구조**:
+```
+docs/
+├── PRD.md                    # 전체 요구사항 (개요)
+├── TECH-SPEC.md              # 전체 기술 설계 (개요)
+├── PROGRESS.md               # 전체 진행 현황
+├── CONTEXT.md                # 컨텍스트 최적화용
+└── phases/                   # Phase별 상세 문서
+    ├── phase-1/
+    │   ├── SPEC.md           # Phase 1 상세 설계
+    │   ├── TASKS.md          # Phase 1 작업 목록
+    │   └── CHECKLIST.md      # Phase 1 완료 체크리스트
+    ├── phase-2/
+    │   ├── SPEC.md
+    │   ├── TASKS.md
+    │   └── CHECKLIST.md
+    └── ...
+```
+
+### Phase 문서 템플릿
+
+**phases/phase-N/SPEC.md**:
+```markdown
+# Phase N: [Phase Name]
+
+**Status**: [Planned | In Progress | Complete]
+**Dependencies**: Phase N-1
+**Target**: [Description]
+
+## Scope
+- [Feature 1]
+- [Feature 2]
+
+## Technical Details
+[상세 구현 사항]
+
+## Files to Create/Modify
+| File | Action | Description |
+|------|--------|-------------|
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+```
+
+### 자동 분할 워크플로우
+
+```bash
+# 프로젝트 개시 시
+"새 프로젝트 시작: [프로젝트명]"
+↓
+dev-docs-writer 활성화 → 기본 문서 생성
+↓
+doc-splitter 활성화 (복잡도 HIGH 시)
+↓
+Phase별 문서 자동 분할
+↓
+context-optimizer 연동 → 토큰 효율화
+
+# Phase 작업 시
+"Phase 2 개발 시작"
+↓
+docs/phases/phase-2/SPEC.md 로드
+↓
+TASKS.md 기반 작업 수행
+↓
+CHECKLIST.md 업데이트
+↓
+PROGRESS.md 자동 반영
+```
+
+### 컨텍스트 최적화 연동
+
+Phase 분할은 `context-optimizer` skill과 연동되어 토큰 효율성을 극대화합니다:
+
+```yaml
+Context Loading 전략:
+  Quick (2K tokens):
+    - CONTEXT.md
+    - Current phase SPEC.md
+
+  Standard (10K tokens):
+    - CONTEXT.md + PROGRESS.md
+    - Current phase 전체 문서
+    - 이전 phase CHECKLIST.md
+
+  Full (30K+ tokens):
+    - 모든 문서
+    - 소스 코드 포함
+```

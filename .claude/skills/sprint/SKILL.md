@@ -341,23 +341,51 @@ docs/
 
 ## Integration
 
+### With Phase System (Primary Integration)
+
+Sprint는 Phase 시스템과 연동하여 작동합니다:
+
+```
+Phase (기능 단위)                Sprint (시간 단위)
+    │                                │
+    ├── docs/phases/phase-1/         ├── docs/sprints/sprint-1/
+    │   └── TASKS.md ─────────────► │   └── BACKLOG.md
+    │       (Task Source)            │       (Sprint Items)
+    │                                │
+    └── CHECKLIST.md ◄─────────────┘
+        (자동 업데이트)                  (완료 시)
+```
+
+**Phase-Sprint 연동 옵션:**
+
+```bash
+# Phase의 Task를 Sprint에 추가
+/sprint start --phase 2 --name "Sprint 3"
+
+# Sprint 항목 완료 시 Phase TASKS.md도 자동 업데이트
+/sprint complete T2-03
+# → docs/phases/phase-2/TASKS.md의 T2-03도 ✅ 표시
+```
+
+> **상세 가이드**: `.claude/docs/SPRINT-PHASE-INTEGRATION.md` 참조
+
 ### With /agile-sync
 ```bash
-# agile-sync includes sprint progress
-/agile-sync  # Updates progress from sprint data
+# agile-sync includes sprint + phase progress
+/agile-sync  # Updates progress from both sprint and phase data
 ```
 
 ### With Progress Tracking
 ```bash
 # Sprint completion updates project progress
 /sprint complete "task"
-# → Automatically updates docs/progress/status.md
+# → Automatically updates docs/PROGRESS.md (Phase + Sprint 통합)
 ```
 
 ### With Git Workflow
 ```bash
 # Commit message includes sprint reference
-git commit -m "feat(auth): login form [Sprint-1]"
+git commit -m "feat(auth): login form [Sprint-1][Phase-2]"
 ```
 
 ## Configuration
